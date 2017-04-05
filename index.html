@@ -1,0 +1,593 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>WebGL Shader</title>
+	<meta name="description" content="Presentation for a WebGL Shader course at Gobelins Paris School">
+
+	<meta property="og:title" content="WebGL Shader">
+        <meta property="og:description" content="Presentation for a WebGL Shader course at Gobelins Paris School">
+        <meta property="og:type" content="website">
+        <meta property="og:image" content="http://yoann-gueny.fr/talk/webgl/img/webgl.jpg">
+        <meta property="og:image:type" content="image/jpeg">
+        <meta property="og:image:width" content="808">
+        <meta property="og:image:height" content="541">
+        <meta property="og:site_name" content="Yoann Gueny">
+        <meta property="og:url" content="http://yoann-gueny.fr/talk/webgl/">
+	
+	<meta itemprop="name" content="WebGL Shader">
+        <meta itemprop="description" content="Presentation for a WebGL Shader course at Gobelins Paris School">
+        <meta itemprop="image" content="http://yoann-gueny.fr/talk/webgl/img/webgl.jpg">
+	
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:site" content="@yoanngueny" />
+	<meta name="twitter:title" content="WebGL Shader" />
+	<meta name="twitter:description" content="Presentation for a WebGL Shader course at Gobelins Paris School." />
+	<meta name="twitter:image" content="http://yoann-gueny.fr/talk/webgl/img/webgl.jpg" />
+	
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/black.css">
+
+        <!-- Theme used for syntax highlighting of code -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+
+        <style type="text/css">
+            img.logo-webgl {
+                width:1000px;
+                height:auto;
+                background:none !important;
+                border:none !important;
+                box-shadow:none !important;
+            }
+            p, li {
+                font-size: .7em !important;
+            }
+            .webgl {
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+            .source {
+                font-size: .4em !important;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="webgl"></div>
+
+        <div class="reveal">
+            <div class="slides">
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ![WebGL](img/webgl-logo.svg)<!-- .element: class="logo-webgl" -->
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Reminder
+                        <br>
+                        ![Geometry](img/geometry.png)
+
+                        Source : <!-- .element: class="source" -->[http://codepen.io/rachsmith/](http://codepen.io/rachsmith/post/beginning-with-3d-webgl-pt-2-geometry)
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Vertex (Vertices)
+                        <br>
+                        ![Vertex](img/vertex.png)
+
+                        Note:
+                        - le rendu se fait dans un espace de 1/1 et -1/-1
+                        - A la base l’API permet simplement de faire du dessin 2D
+                        - Un triangle est défini par ces 3 éléments
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Index (Indices)
+                        <br>
+                        ![Index](img/index.png)
+
+                        Note:
+                        - Permet de préciser l’ordre des vertex d’un triangle
+                        - Counter Clockwise face à la caméra
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Not Indexed
+                        <br>
+                        ![Index](img/not_indexed.png)
+
+                        - [0, 1, 2]
+                        - [3, 4, 5]
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Indexed
+                        <br>
+                        ![Index](img/indexed.png)
+
+                        - [0, 1, 2]
+                        - [3, 0, 2]
+
+                        Note:
+                        - Permet de définir des triangles qui partagent les même vertices (optimisation)
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Geometry
+                        <br>
+                        Easier to work with as they store attributes such as vertices, faces, colors and so on directly, however they are generally slower.
+                        <br><br>
+                        ```javascript
+                        var geometry = new THREE.Geometry();
+                        geometry.vertices.push(
+                            new THREE.Vector3( -0.5,  -0.5, 0 ),
+                            new THREE.Vector3( 0.5, -0.5, 0 ),
+                            new THREE.Vector3(  0, 0.5, 0 )
+                        );
+                        geometry.faces.push(
+                            new THREE.Face3( 0, 1, 2 )
+                        );
+                        ```
+
+                        Note:
+                        - Avantage : manipulations
+                        - Inconvénient : performances
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## BufferGeometry
+                        <br>
+                        An efficient alternative to Geometry, because it stores all data within buffers. This reduces the cost of passing all this data to the GPU. This also makes BufferGeometry harder to work with.
+                        <br><br>
+                        ```javascript
+                        var geometry = new THREE.BufferGeometry();
+                        var vertices = new Float32Array( [
+                            -0.5,  -0.5, 0,
+                            0.5, -0.5, 0,
+                            0, 0.5, 0
+                        ] );
+                        geometry.addAttribute('position', new THREE.BufferAttribute( vertices, 3 ) );
+                        var indices = new Uint32Array( [
+                            0, 1, 2
+                        ] );
+                        geometry.setIndex(  new THREE.BufferAttribute( indices, 1 ) );
+                        ```
+
+                        Note:
+                        - Avantage : performances
+                        - Inconvénient : manipulations
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        # Shader
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Data Types
+                        <br>
+                        - Scalars : int, float
+                        - Vectors : vec2, vec3, vec4
+                        - Matrices : mat4
+                        - Samplers: sampler2D
+
+                        <br><br>
+                        Learn more : <!-- .element: class="source" -->[http://www.lighthouse3d.com](http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/data-types-and-variables/)
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Swizzling
+                        <br>
+                        You can access the components of vectors using the following syntax:
+                        ```
+                        vec4 someVec;
+                        someVec.x + someVec.y;
+                        ```
+                        You can use x, y, z, or w, referring to the first,<br>second, third, and fourth components, respectively.
+                        ```
+                        vec4 someVec;
+                        someVec.wzyx = vec4(1.0, 2.0, 3.0, 4.0); //Reverses the order.
+                        someVec.zx = vec2(3.0, 5.0); //Sets the 3rd component of someVec to 3.0
+                        // and the 1st component to 5.0
+                        ```
+
+                        <br><br>
+                        Learn more : <!-- .element: class="source" -->[https://www.khronos.org](https://www.khronos.org/opengl/wiki/Data_Type_(GLSL))
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Functions
+                        <br>
+                        ```
+                        // distance
+                        float distance(float p0, float p1)  
+                        float distance(vec2 p0, vec2 p1)  
+                        float distance(vec3 p0, vec3 p1)  
+                        float distance(vec4 p0, vec4 p1)
+                        // dot product
+                        float dot(float x, float y)  
+                        float dot(vec2 x, vec2 y)  
+                        float dot(vec3 x, vec3 y)  
+                        float dot(vec4 x, vec4 y)
+                        ```
+                        <br>
+                        And a lot of more !
+
+                        <br><br>
+                        Learn more : <!-- .element: class="source" -->[http://www.shaderific.com](http://www.shaderific.com/glsl-functions/)
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Vertex
+                        <br>
+                        ![Index](img/vertex_shader.png)
+                        <br><br>
+                        It must define gl_Position, a 4D float vector,<br>which is the final position of the vertex on screen
+
+                        Note:
+                        - 4ème paramètre W sert a des calculs de matrices
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Vertex
+                        <br>
+                        ```html
+                        <script id="vertexShader" type="x-shader/x-vertex">
+                            void main() {
+                                gl_Position = vec4(position, 1);
+                            }
+                        <\script>
+                        ```
+                        Or
+                        ```javascript
+                        var vertexShader =
+                        "void main() {\n" +
+                        "    gl_Position = vec4(position, 1);\n" +
+                        "}";
+                        ```
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Fragment
+                        <br>
+                        ![Index](img/fragment_shader.png)
+                        <br><br>
+                        It must set or discard the gl_FragColor variable,<br>another 4D float vector, which is the final colour of our fragment.
+
+                        Note:
+                        - Valeur interpolé entre les vertices
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Fragment
+                        <br>
+                        ```html
+                        <script id="fragmentShader" type="x-shader/x-fragment">
+                            void main() {
+                                gl_FragColor = vec4(1, 0, 0, 1);
+                            }
+                        <\script>
+                        ```
+                        Or
+                        ```javascript
+                        var fragmentShader =
+                        "void main() {\n" +
+                        "    gl_FragColor = vec4(1, 0, 0, 1);\n" +
+                        "}";
+                        ```
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Material
+                        <br>
+                        ```javascript
+                        var material = new THREE.ShaderMaterial( {
+                            vertexShader: document.getElementById( 'vertexShader' ).textContent,
+                            fragmentShader: document.getElementById( 'fragmentShader' ).textContent
+                        } );
+                        ```
+                        Or
+                        ```javascript
+                        var material = new THREE.ShaderMaterial( {
+                            vertexShader: vertexShader,
+                            fragmentShader: fragmentShader
+                        } );
+                        ```
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Uniforms
+                        <br>
+                        Value sent to both vertex shaders and fragment shaders<br>and contain values that stay the same across the entire frame being rendered
+
+                        Note:
+                        - A good example of this might be a light’s position.
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Uniforms
+                        <br>
+                        ```javascript
+                        var material = new THREE.ShaderMaterial( {
+                            uniforms: {
+                                color: { value: new THREE.Color( 0x00ff00 ) }
+                            },
+                            vertexShader: document.getElementById( 'vertexShader' ).textContent,
+                            fragmentShader: document.getElementById( 'fragmentShader' ).textContent
+                        } );
+                        ```
+                        <br>
+                        ```javascript
+                        <script id="fragmentShader" type="x-shader/x-fragment">
+                            uniform vec3 color;
+                            void main() {
+                                gl_FragColor = vec4(color, 1);
+                            }
+                        <\script>
+                        ```
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Varying
+                        <br>
+                        Variables declared in the vertex shader<br>that we want to share with the fragment shader.
+
+                        Note:
+                        - A classic use of this would be a vertex’s normal since this can be used in the lighting calculations.
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Varying
+                        <br>
+                        ```javascript
+                        <script id="vertexShader" type="x-shader/x-vertex">
+                            varying vec4 vColor;
+                            void main() {
+                                gl_Position = vec4(position, 1);
+                                vColor = gl_Position * 0.5 + 0.5;
+                            }
+                        <\script>
+                        ```
+                        <br>
+                        ```javascript
+                        <script id="fragmentShader" type="x-shader/x-fragment">
+                            varying vec4 vColor;
+                            void main() {
+                                gl_FragColor = vColor;
+                            }
+                        <\script>
+                        ```
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Varying
+                        <br>
+                        ![Index](img/varying.png)
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Attributes
+                        <br>
+                        Values that are applied to individual vertices.<br>Attributes are only available to the vertex shader.
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Attributes
+                        <br>
+                        ```javascript
+                        var colors = new Float32Array( indices.length * 3 );
+                        for ( var i = 0, i3 = 0, len = indices.length; i < len; i++, i3 += 3 ) {
+                            colors[ i3 + 0 ] = Math.random();
+                            colors[ i3 + 1 ] = Math.random();
+                            colors[ i3 + 2 ] = Math.random();
+                        }
+                        geometry.addAttribute( 'color', new THREE.BufferAttribute( colors, 3 ) );
+                        ```
+                        <br>
+                        ```html
+                        <script id="vertexShader" type="x-shader/x-vertex">
+                            attribute vec3 color;
+                            varying vec4 vColor;
+                            void main() {
+                                gl_Position = vec4(position, 1);
+                                vColor = vec4(color, 1.0);
+                            }
+                        <\script>
+                        ```
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        # More
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Matrices
+                        <br>
+                        How the 3D position of the vertex is actually projected to the final 2D position on the screen.
+                        <br><br>
+                        - Model : How you take your original model data and move it around in 3d world space.
+                        <br><br>
+                        - View : The location of the camera in the scene.
+                        <br><br>
+                        - Projection : The perspective matrix, which mimics the effects of a typical camera.
+                        <br><br>
+
+                        ```html
+                        <script id="vertexShader" type="x-shader/x-vertex">
+                            void main() {
+                                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1);
+                            }
+                        <\script>
+                        ```
+                        <br><br>
+                        Learn more : <!-- .element: class="source" -->[http://www.opengl-tutorial.org](http://www.opengl-tutorial.org/fr/beginners-tutorials/tutorial-3-matrices/L)
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Normals
+                        <br>
+                        A unit vector that describes the direction a surface is facing
+                        <br><br>
+                        ![Index](img/normal.png)
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Chunk & Lib
+                        <br>
+                        [Don’t repeat yourself !](https://github.com/mrdoob/three.js/tree/master/src/renderers/shaders/ShaderLib)
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Post processing
+                        <br>
+                        - [THREE effect composer](https://www.airtightinteractive.com/2013/02/intro-to-pixel-shaders-in-three-js/)
+                        - [Wagner effects composer](https://github.com/spite/Wagner)
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Debug
+                        <br>
+                        - [rstats performance monitor](http://spite.github.io/rstats/)
+                        - [another performance monitor](http://learningthreejs.com/blog/2013/06/25/monitor-rendering-performance-within-threejs/)
+                        - [Debugging and profiling tools](http://www.realtimerendering.com/blog/webgl-debugging-and-profiling-tools/)
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Resources
+
+                        - [https://threejs.org/](https://threejs.org/examples/)
+                        - [https://webglfundamentals.org](https://webglfundamentals.org/)
+                        - [https://aerotwist.com](https://aerotwist.com/tutorials/an-introduction-to-shaders-part-1/)
+                        - [https://developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Getting_started_with_WebGL)
+                        - [http://blog.2pha.com](http://blog.2pha.com/experimenting-threejs-shaders-and-shadermaterialL)
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Enjoy !
+
+                        [@yoanngueny](https://twitter.com/yoanngueny)
+                    </script>
+                </section>
+
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.js"></script>
+        <script src="js/three.js"></script>
+        <script src="js/main.js"></script>
+
+        <script id="vertexShader" type="x-shader/x-vertex">
+            attribute vec3 color;
+            varying vec4 vColor;
+            void main() {
+                gl_Position = vec4(position, 1);
+                vColor = vec4(color, 1.0);
+            }
+        </script>
+
+        <script id="fragmentShader" type="x-shader/x-fragment">
+            varying vec4 vColor;
+            void main() {
+                gl_FragColor = vColor;
+            }
+        </script>
+
+        <script>
+            // More info https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+
+                width: 1200,
+                height: 800,
+
+                history: true,
+
+                // More info https://github.com/hakimel/reveal.js#dependencies
+                dependencies: [
+                    { src: 'plugin/markdown/marked.js' },
+                    { src: 'plugin/markdown/markdown.js' },
+                    { src: 'plugin/notes/notes.js', async: true },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+                ]
+            });
+
+            Reveal.addEventListener( 'ready', function( event ) {
+                // init();
+            } );
+        </script>
+    </body>
+</html>
