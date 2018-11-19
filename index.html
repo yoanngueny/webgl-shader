@@ -93,8 +93,9 @@
                         ![Vertex](img/vertex.png)
 
                         Note:
+                        - oubliez la 3D
+                        - A la base l’API permet simplement de faire du dessin
                         - le rendu se fait dans un espace de 1/1 et -1/-1
-                        - A la base l’API permet simplement de faire du dessin 2D
                         - Un triangle est défini par ces 3 éléments
                     </script>
                 </section>
@@ -108,6 +109,7 @@
                         Note:
                         - Permet de préciser l’ordre des vertex d’un triangle
                         - Counter Clockwise face à la caméra
+                        - Mais à quoi ça sert ? On aurais pu donner l'ordre avec les vertex
                     </script>
                 </section>
 
@@ -188,7 +190,17 @@
 
                 <section data-markdown>
                     <script type="text/template">
+                        ## Practice 1
+                        Note:
+                        - Créer la forme de la triforce de zelda
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
                         # Shader
+                        Note:
+                        - Programme envoyé à la carte graphique recevant des paramètres pour gérer un rendu
                     </script>
                 </section>
 
@@ -261,6 +273,7 @@
                         It must define gl_Position, a 4D float vector,<br>which is the final position of the vertex on screen
 
                         Note:
+                        - le vertex shader va passer par tous les vertices envoyés précédemment
                         - 4ème paramètre W sert a des calculs de matrices
                     </script>
                 </section>
@@ -295,6 +308,7 @@
                         It must set or discard the gl_FragColor variable,<br>another 4D float vector, which is the final colour of our fragment.
 
                         Note:
+                        - le fragment shader va passer par tous les pixels compris entre les vertices définis
                         - Valeur interpolé entre les vertices
                     </script>
                 </section>
@@ -342,6 +356,14 @@
 
                 <section data-markdown>
                     <script type="text/template">
+                        ## Practice 2
+                        Note:
+                        - Créer un triangle rouge
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
                         ## Uniforms
                         <br>
                         Value sent to both vertex shaders and fragment shaders<br>and contain values that stay the same across the entire frame being rendered
@@ -373,6 +395,14 @@
                             }
                         <\script>
                         ```
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Practice 3
+                        Note:
+                        - Faire varier la couleur du triangle dynamiquement
                     </script>
                 </section>
 
@@ -422,6 +452,14 @@
 
                 <section data-markdown>
                     <script type="text/template">
+                        ## Practice 4
+                        Note:
+                        - Créer le même triangle que dans l'exemple, mais inversé horizontalement les couleurs
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
                         ## Attributes
                         <br>
                         Values that are applied to individual vertices.<br>Attributes are only available to the vertex shader.
@@ -452,6 +490,16 @@
                             }
                         <\script>
                         ```
+                        Note:
+                        - Seulement disponible pour BufferGeometry
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Practice 5
+                        Note:
+                        - Colorier la triforce correctement
                     </script>
                 </section>
 

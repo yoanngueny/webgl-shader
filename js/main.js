@@ -41,7 +41,7 @@ function init() {
     geometry.addAttribute( 'color', new THREE.BufferAttribute( colors, 3 ) );
 
     // material = new THREE.MeshBasicMaterial( { color: BLUE } );
-    
+
     material = new THREE.ShaderMaterial( {
         uniforms: {
             color: { value: new THREE.Color( 0x00ff00 ) }
